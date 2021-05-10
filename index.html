@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="https://d3js.org/d3.v6.js"></script>
+    <style>
+        div.fell {
+        width:10px;
+        height:10px;
+        background-color: purple;
+        }
+
+        div.found {
+        width:10px;
+        height:10px;
+        background-color: pink; /* cores: topo, direita, inferior, esquerda */
+        }
+    </style>
+</head>
+        <h2>DB5 - Meteorite Landings</h2>
+        <h3>Samara Lima de Souza</h3>
+    
+    <div>Fell</div>
+    <div class="fell"></div>
+    <div>Found</div>
+    <div class="found"></div>
+
+<body>
+
+
+</body>
+
+<script>
+
+    function loadMap(svg, geo_data, data){
+        console.log(geo_data)
+        let projection = d3.geoMercator()
+            .scale(80)
+            .translate([width / 2, height / 2]);
+
+        let path = d3.geoPath().projection(projection);
+
+        svg.selectAll("path")
+            .data(geo_data.features)
+            .join("path")
+            .attr("d", d => path(d))
+            .attr("fill", "gray")
+            .attr("stroke", "white")
+            .attr("id", d=> d.properties.name)
+            .attr("stroke-width", 1);
+
+        loadCircles(svg, projection, data);
+    }
+
+    function loadCircles(svg, projection, data) {
+        
+        let colorScale = d3.scaleOrdinal()
+                            .domain([...new Set(data.map(d => d.fall))])
+                            .range(["purple", "pink"])
+
+        svg.append('g')
+            .selectAll("circle")
+            .data(data)
+            .join("circle")
+                .attr("cx", d => projection([+d.reclong, +d.reclat])[0])
+                .attr("cy", d => projection([+d.reclong, +d.reclat])[1])
+                .attr("r", 2)
+                .style("opacity", .8)
+                .style("fill", d => colorScale(d.fall)
+                ); 
+    }
+
+    let mapData = [];
+    let globalMeteorite = [];
+
+    let margin = 75,
+        width = 500 - margin,
+        height = 500 - margin;
+    
+        Promise.all([d3.json("custom.geo.json"),
+                d3.csv("meteorite-landings_2.csv")]).then( results => {
+
+        mapData = results[0];
+        globalMeteorite = results[1];
+
+        let svg_mapa = d3.select("body")
+            .append("svg")
+                .attr("width", width + margin)
+                .attr("height", height + margin)
+            .append('g')
+                .attr('class', 'map');
+
+        let svg_vis1 = d3.select("body")
+            .append("svg")
+                .attr("width", width + margin)
+                .attr("height", height + margin)
+            .append('g')
+                .attr('class', 'map');
+
+        loadMap(svg_mapa, mapData, globalMeteorite)
+
+        })
+
+</script>
+
+</html>
