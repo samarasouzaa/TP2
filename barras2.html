@@ -71,22 +71,22 @@
 
             let array1 = Array.from(d3.rollup(data, v => d3.mean(v, d => d.mass), d => d.recclass))
 
-            var data2 = array1.map(function(d) {
+            var data1 = array1.map(function(d) {
                 return {
                     class: d[0],
                     mean_mass: d[1]
                 };
             });
 
-            let mean = d3.mean(data2, g => +g["mean_mass"]);
-            data3 = data2.filter(function(d) { return d.mean_mass > mean})
+            let mean = d3.mean(data1, g => +g["mean_mass"]);
+            data2 = data1.filter(function(d) { return d.mean_mass > mean})
 
-            console.log(data3)
+            console.log(data2)
 
-            x.domain(data3.map(function(d) { return d.class; }));
-            y.domain([0, d3.max(data3, function(d) { return d.mean_mass; })]);
+            x.domain(data2.map(function(d) { return d.class; }));
+            y.domain([0, d3.max(data2, function(d) { return d.mean_mass; })]);
 
-            plot_data(data3, svg, x, y, width, height)
+            plot_data(data2, svg, x, y, width, height)
         }
 
     </script>
